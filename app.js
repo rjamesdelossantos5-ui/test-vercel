@@ -1,6 +1,6 @@
 // 1. Supabase Configuration
-const SUPABASE_URL = 'https://nhmawanabuqnqswvvqph.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_ybfb7YNz9VBgAduV3VemSA_Jbu6IEVU'; 
+const SUPABASE_URL = 'https://umcjjaxrmtdebgnaakqu.supabase.co/rest/v1/';
+const SUPABASE_KEY = 'sb_publishable_iOF-AnW9_tLenj6Jn2k9fw_NDy9bct5'; 
 const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // 2. DOM Elements
