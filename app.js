@@ -1,5 +1,5 @@
 // 1. Supabase Configuration
-const SUPABASE_URL = 'https://umcjjaxrmtdebgnaakqu.supabase.co/rest/v1/';
+const SUPABASE_URL = 'https://umcjjaxrmtdebgnaakqu.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_iOF-AnW9_tLenj6Jn2k9fw_NDy9bct5'; 
 const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
