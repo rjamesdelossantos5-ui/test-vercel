@@ -9,7 +9,7 @@ const postBtn = document.getElementById('postBtn');
 const usernameInput = document.getElementById('username');
 const contentInput = document.getElementById('postContent');
 
-// 3. Fetch Posts and Apply Tailwind Styling
+// 3. Fetch Posts and Apply Tailwind Styling@
 async function fetchPosts() {
     const { data, error } = await _supabase
         .from('posts') 
