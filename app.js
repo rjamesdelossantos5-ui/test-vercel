@@ -124,7 +124,14 @@ fetchPosts();
 async function fetchNasaAPOD(isRandom = false) {
     const nasaContainer = document.getElementById('nasaSection');
     
-    // If isRandom is true, we add &count=1 to the URL
+    // 1. Show a loading state inside the container if it's already visible
+    if (isRandom && nasaContainer) {
+        nasaContainer.innerHTML = `
+            <div class="h-64 w-full bg-slate-200 animate-pulse rounded-3xl flex items-center justify-center text-slate-400 font-bold">
+                Fetching new galaxy...
+            </div>`;
+    }
+
     const baseUrl = 'https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY';
     const url = isRandom ? `${baseUrl}&count=1` : baseUrl;
 
@@ -132,17 +139,17 @@ async function fetchNasaAPOD(isRandom = false) {
         const response = await fetch(url);
         let data = await response.json();
 
-        // When using 'count=1', NASA returns an Array [ ], so we take the first item
         if (isRandom) data = data[0];
 
         if (data.media_type === 'image') {
             nasaContainer.classList.remove('hidden');
             nasaContainer.innerHTML = `
-                <div class="relative h-64 overflow-hidden bg-slate-200" id="nasaImageWrapper">
+                <div class="relative h-64 overflow-hidden bg-slate-200">
                     <img src="${data.url}" class="w-full h-full object-cover">
                     
-                    <!-- Randomize Button -->
-                    <button onclick="fetchNasaAPOD(true)" class="absolute top-4 right-4 bg-white/20 hover:bg-white/40 backdrop-blur-md p-2 rounded-full text-white transition" title="Randomize">
+                    <!-- The Random Button -->
+                    <button onclick="fetchNasaAPOD(true)" 
+                            class="absolute top-4 right-4 bg-white/20 hover:bg-white/40 backdrop-blur-md p-2 rounded-full text-white transition-all z-10">
                         🔄
                     </button>
 
@@ -154,7 +161,9 @@ async function fetchNasaAPOD(isRandom = false) {
                     </div>
                 </div>
                 <div class="p-6 bg-white/30">
-                    <p class="text-slate-600 text-sm leading-relaxed line-clamp-3">${data.explanation}</p>
+                    <p class="text-slate-600 text-sm leading-relaxed line-clamp-3 hover:line-clamp-none transition-all cursor-pointer">
+                        ${data.explanation}
+                    </p>
                 </div>
             `;
         }
