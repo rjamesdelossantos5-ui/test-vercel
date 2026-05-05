@@ -114,5 +114,47 @@ contentInput.addEventListener('keypress', function (e) {
     }
 });
 
+
+
 // 6. Initial Load
 fetchPosts();
+
+// 9. NASA API Integration
+async function fetchNasaAPOD() {
+    const nasaContainer = document.getElementById('nasaSection');
+    
+    try {
+        // We use DEMO_KEY for now. It's free and works immediately.
+        const response = await fetch('https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY');
+        const data = await response.json();
+
+        // Only display if it's an image (sometimes NASA posts videos)
+        if (data.media_type === 'image') {
+            nasaContainer.classList.remove('hidden');
+            nasaContainer.innerHTML = `
+                <div class="relative h-48 sm:h-64 overflow-hidden">
+                    <img src="${data.url}" class="w-full h-full object-cover transition-transform duration-700 hover:scale-105" alt="NASA APOD">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent flex items-end p-6">
+                        <div>
+                            <span class="text-indigo-300 font-bold text-[10px] uppercase tracking-[0.2em] mb-1 block">Daily Discovery</span>
+                            <h3 class="text-white font-extrabold text-xl sm:text-2xl leading-tight">${data.title}</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-6 bg-white/30">
+                    <p class="text-slate-600 text-sm leading-relaxed line-clamp-3 hover:line-clamp-none transition-all cursor-pointer" title="Click to expand">
+                        ${data.explanation}
+                    </p>
+                    <div class="mt-4 flex items-center text-[11px] font-bold text-slate-400">
+                        <span class="mr-2">🚀</span> SOURCE: NASA JET PROPULSION LABORATORY
+                    </div>
+                </div>
+            `;
+        }
+    } catch (error) {
+        console.error("NASA API failed to load:", error);
+    }
+}
+
+// Call the function at the very bottom of your script
+fetchNasaAPOD();
