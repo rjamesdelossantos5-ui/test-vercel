@@ -123,13 +123,7 @@ fetchPosts();
 // Add 'isRandom' parameter to the function
 async function fetchNasaAPOD(isRandom = false) {
     const nasaContainer = document.getElementById('nasaSection');
-    
-    // 1. INSTANT UI FEEDBACK
-    // We show a loading spinner or text immediately so the user knows the click worked.
-    if (isRandom) {
-        const imgWrapper = document.getElementById('nasaImageWrapper');
-        if (imgWrapper) imgWrapper.classList.add('animate-pulse', 'bg-slate-300');
-    }
+    if (!nasaContainer) return; // Exit if the box isn't in the HTML
 
     const baseUrl = 'https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY';
     const url = isRandom ? `${baseUrl}&count=1` : baseUrl;
@@ -141,36 +135,23 @@ async function fetchNasaAPOD(isRandom = false) {
 
         if (data.media_type === 'image') {
             nasaContainer.classList.remove('hidden');
-            
-            // 2. USE THE LOWER-RES URL
-            // NASA provides 'url' (smaller) and 'hdurl' (huge). We use 'url' for speed.
             nasaContainer.innerHTML = `
-                <div class="relative h-64 overflow-hidden bg-slate-200" id="nasaImageWrapper">
-                    <img src="${data.url}" 
-                         class="w-full h-full object-cover opacity-0 transition-opacity duration-300" 
-                         onload="this.classList.remove('opacity-0'); this.parentElement.classList.remove('animate-pulse');">
-                    
-                    <button onclick="fetchNasaAPOD(true)" 
-                            class="absolute top-4 right-4 bg-black/30 hover:bg-black/50 backdrop-blur-md p-2 rounded-full text-white transition-all z-10">
-                        🔄
-                    </button>
-
-                    <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent flex items-end p-6">
-                        <div>
-                            <span class="text-indigo-300 font-bold text-[10px] uppercase tracking-[0.2em] mb-1 block">NASA Discovery</span>
-                            <h3 class="text-white font-extrabold text-xl leading-tight">${data.title}</h3>
-                        </div>
-                    </div>
+                <div class="relative group">
+                    <img src="${data.url}" class="w-full h-64 object-cover">
+                    <button onclick="fetchNasaAPOD(true)" class="absolute top-2 right-2 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition">🔄</button>
                 </div>
-                <div class="p-6 bg-white/30">
-                    <p class="text-slate-600 text-sm leading-relaxed line-clamp-3">${data.explanation}</p>
+                <div class="p-4">
+                    <h3 class="font-bold text-lg">${data.title}</h3>
+                    <p class="text-gray-600 text-sm mt-1">${data.explanation.substring(0, 200)}...</p>
                 </div>
             `;
         }
-    } catch (error) {
-        console.error("NASA API Error:", error);
+    } catch (e) {
+        console.error("NASA Load Error", e);
     }
 }
+
+fetchNasaAPOD();
 
 // Call the function at the very bottom of your script
 fetchNasaAPOD();
