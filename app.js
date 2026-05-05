@@ -124,35 +124,42 @@ async function fetchNasaAPOD() {
     const nasaContainer = document.getElementById('nasaSection');
     
     try {
-        // We use DEMO_KEY for now. It's free and works immediately.
         const response = await fetch('https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY');
         const data = await response.json();
 
-        // Only display if it's an image (sometimes NASA posts videos)
+        // 1. Check if NASA sent an error (like Rate Limit Exceeded)
+        if (data.error || data.code) {
+            console.error("NASA API Error:", data.error?.message || "Rate limit hit");
+            return; // Exit silently
+        }
+
+        console.log("NASA Data received:", data); // Check your console to see this!
+
         if (data.media_type === 'image') {
             nasaContainer.classList.remove('hidden');
+            
+            // 2. Use the 'url' for standard res, or 'hdurl' for high res. 
+            // We use 'url' here because it loads faster.
             nasaContainer.innerHTML = `
-                <div class="relative h-48 sm:h-64 overflow-hidden">
-                    <img src="${data.url}" class="w-full h-full object-cover transition-transform duration-700 hover:scale-105" alt="NASA APOD">
+                <div class="relative h-64 overflow-hidden bg-slate-200 animate-pulse" id="nasaImageWrapper">
+                    <img src="${data.url}" 
+                         class="w-full h-full object-cover opacity-0 transition-opacity duration-1000" 
+                         onload="this.parentElement.classList.remove('animate-pulse'); this.classList.remove('opacity-0');">
+                    
                     <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent flex items-end p-6">
                         <div>
-                            <span class="text-indigo-300 font-bold text-[10px] uppercase tracking-[0.2em] mb-1 block">Daily Discovery</span>
-                            <h3 class="text-white font-extrabold text-xl sm:text-2xl leading-tight">${data.title}</h3>
+                            <span class="text-indigo-300 font-bold text-[10px] uppercase tracking-[0.2em] mb-1 block font-mono">Daily Discovery</span>
+                            <h3 class="text-white font-extrabold text-xl leading-tight">${data.title}</h3>
                         </div>
                     </div>
                 </div>
                 <div class="p-6 bg-white/30">
-                    <p class="text-slate-600 text-sm leading-relaxed line-clamp-3 hover:line-clamp-none transition-all cursor-pointer" title="Click to expand">
-                        ${data.explanation}
-                    </p>
-                    <div class="mt-4 flex items-center text-[11px] font-bold text-slate-400">
-                        <span class="mr-2">🚀</span> SOURCE: NASA JET PROPULSION LABORATORY
-                    </div>
+                    <p class="text-slate-600 text-sm leading-relaxed">${data.explanation}</p>
                 </div>
             `;
         }
     } catch (error) {
-        console.error("NASA API failed to load:", error);
+        console.error("Connection failed:", error);
     }
 }
 
