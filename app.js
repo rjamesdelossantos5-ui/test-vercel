@@ -124,12 +124,11 @@ fetchPosts();
 async function fetchNasaAPOD(isRandom = false) {
     const nasaContainer = document.getElementById('nasaSection');
     
-    // 1. Show a loading state inside the container if it's already visible
-    if (isRandom && nasaContainer) {
-        nasaContainer.innerHTML = `
-            <div class="h-64 w-full bg-slate-200 animate-pulse rounded-3xl flex items-center justify-center text-slate-400 font-bold">
-                Fetching new galaxy...
-            </div>`;
+    // 1. INSTANT UI FEEDBACK
+    // We show a loading spinner or text immediately so the user knows the click worked.
+    if (isRandom) {
+        const imgWrapper = document.getElementById('nasaImageWrapper');
+        if (imgWrapper) imgWrapper.classList.add('animate-pulse', 'bg-slate-300');
     }
 
     const baseUrl = 'https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY';
@@ -138,18 +137,21 @@ async function fetchNasaAPOD(isRandom = false) {
     try {
         const response = await fetch(url);
         let data = await response.json();
-
         if (isRandom) data = data[0];
 
         if (data.media_type === 'image') {
             nasaContainer.classList.remove('hidden');
+            
+            // 2. USE THE LOWER-RES URL
+            // NASA provides 'url' (smaller) and 'hdurl' (huge). We use 'url' for speed.
             nasaContainer.innerHTML = `
-                <div class="relative h-64 overflow-hidden bg-slate-200">
-                    <img src="${data.url}" class="w-full h-full object-cover">
+                <div class="relative h-64 overflow-hidden bg-slate-200" id="nasaImageWrapper">
+                    <img src="${data.url}" 
+                         class="w-full h-full object-cover opacity-0 transition-opacity duration-300" 
+                         onload="this.classList.remove('opacity-0'); this.parentElement.classList.remove('animate-pulse');">
                     
-                    <!-- The Random Button -->
                     <button onclick="fetchNasaAPOD(true)" 
-                            class="absolute top-4 right-4 bg-white/20 hover:bg-white/40 backdrop-blur-md p-2 rounded-full text-white transition-all z-10">
+                            class="absolute top-4 right-4 bg-black/30 hover:bg-black/50 backdrop-blur-md p-2 rounded-full text-white transition-all z-10">
                         🔄
                     </button>
 
@@ -161,9 +163,7 @@ async function fetchNasaAPOD(isRandom = false) {
                     </div>
                 </div>
                 <div class="p-6 bg-white/30">
-                    <p class="text-slate-600 text-sm leading-relaxed line-clamp-3 hover:line-clamp-none transition-all cursor-pointer">
-                        ${data.explanation}
-                    </p>
+                    <p class="text-slate-600 text-sm leading-relaxed line-clamp-3">${data.explanation}</p>
                 </div>
             `;
         }
