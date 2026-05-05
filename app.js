@@ -120,46 +120,46 @@ contentInput.addEventListener('keypress', function (e) {
 fetchPosts();
 
 // 9. NASA API Integration
-async function fetchNasaAPOD() {
+// Add 'isRandom' parameter to the function
+async function fetchNasaAPOD(isRandom = false) {
     const nasaContainer = document.getElementById('nasaSection');
     
+    // If isRandom is true, we add &count=1 to the URL
+    const baseUrl = 'https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY';
+    const url = isRandom ? `${baseUrl}&count=1` : baseUrl;
+
     try {
-        const response = await fetch('https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY');
-        const data = await response.json();
+        const response = await fetch(url);
+        let data = await response.json();
 
-        // 1. Check if NASA sent an error (like Rate Limit Exceeded)
-        if (data.error || data.code) {
-            console.error("NASA API Error:", data.error?.message || "Rate limit hit");
-            return; // Exit silently
-        }
-
-        console.log("NASA Data received:", data); // Check your console to see this!
+        // When using 'count=1', NASA returns an Array [ ], so we take the first item
+        if (isRandom) data = data[0];
 
         if (data.media_type === 'image') {
             nasaContainer.classList.remove('hidden');
-            
-            // 2. Use the 'url' for standard res, or 'hdurl' for high res. 
-            // We use 'url' here because it loads faster.
             nasaContainer.innerHTML = `
-                <div class="relative h-64 overflow-hidden bg-slate-200 animate-pulse" id="nasaImageWrapper">
-                    <img src="${data.url}" 
-                         class="w-full h-full object-cover opacity-0 transition-opacity duration-1000" 
-                         onload="this.parentElement.classList.remove('animate-pulse'); this.classList.remove('opacity-0');">
+                <div class="relative h-64 overflow-hidden bg-slate-200" id="nasaImageWrapper">
+                    <img src="${data.url}" class="w-full h-full object-cover">
                     
+                    <!-- Randomize Button -->
+                    <button onclick="fetchNasaAPOD(true)" class="absolute top-4 right-4 bg-white/20 hover:bg-white/40 backdrop-blur-md p-2 rounded-full text-white transition" title="Randomize">
+                        🔄
+                    </button>
+
                     <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent flex items-end p-6">
                         <div>
-                            <span class="text-indigo-300 font-bold text-[10px] uppercase tracking-[0.2em] mb-1 block font-mono">Daily Discovery</span>
+                            <span class="text-indigo-300 font-bold text-[10px] uppercase tracking-[0.2em] mb-1 block">NASA Discovery</span>
                             <h3 class="text-white font-extrabold text-xl leading-tight">${data.title}</h3>
                         </div>
                     </div>
                 </div>
                 <div class="p-6 bg-white/30">
-                    <p class="text-slate-600 text-sm leading-relaxed">${data.explanation}</p>
+                    <p class="text-slate-600 text-sm leading-relaxed line-clamp-3">${data.explanation}</p>
                 </div>
             `;
         }
     } catch (error) {
-        console.error("Connection failed:", error);
+        console.error("NASA API Error:", error);
     }
 }
 
